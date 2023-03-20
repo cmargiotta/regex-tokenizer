@@ -1,0 +1,8 @@
+error: Invalid regex: regex parse error:
+           "a[1"
+             ^
+       error: unclosed character class
+ --> tests/compile-fail/wrong-regex.rs:7:9
+  |
+7 |         "a[1" => A
+  |         ^^^^^

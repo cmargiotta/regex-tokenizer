@@ -1,0 +1,5 @@
+error: Unexpected token, an identifier is needed
+ --> tests/compile-fail/wrong-name.rs:5:9
+  |
+5 |         123
+  |         ^^^

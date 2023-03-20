@@ -1,0 +1,13 @@
+[package]
+name = "regex-tokenizer-impl"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+regex = "1"
+quote = "1.0.26"
+proc-macro2 = "1.0.52"
+
+[lib]
+proc-macro = true

@@ -1,0 +1,23 @@
+[package]
+name = "regex-tokenizer"
+version = "0.1.0"
+authors = ["Carmine Margiotta <cmargiotta@posteo.net>"]
+edition = "2021"
+description = "A regex tokenizer"
+readme = "README.md"
+homepage = "https://github.com/cmargiotta/regex-tokenizer"
+repository = "https://github.com/cmargiotta/regex-tokenizer"
+license = "MIT"
+keywords = ["tokenizer", "regex"]
+categories = ["parsing"]
+
+[dependencies]
+regex = "1"
+regex-tokenizer-impl = {path = "impl"}
+proc-macro2 = "1.0.52"
+
+[dev-dependencies]
+trybuild = "1.0"
+
+[workspace]
+members = ["impl"]
