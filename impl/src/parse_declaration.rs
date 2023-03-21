@@ -45,8 +45,23 @@ pub fn parse(code: TokenStream) -> Result<Parsing, TokenStream> {
             Some(token) => return Err(error(token.span(), "Unexpected token")),
         };
 
-        assert!(tokens.next().unwrap().to_string() == "=");
-        assert!(tokens.next().unwrap().to_string() == ">");
+        match tokens.next() {
+            Some(arrow) => {
+                if arrow.to_string() != "=" {
+                    return Err(error(arrow.span(), "Unexpected token"));
+                }
+            }
+            None => return Err(error(regex.span(), "Arrow => required")),
+        }
+
+        match tokens.next() {
+            Some(arrow) => {
+                if arrow.to_string() != ">" {
+                    return Err(error(arrow.span(), "Unexpected token"));
+                }
+            }
+            None => return Err(error(regex.span(), "Arrow => required")),
+        }
 
         let type_ = match tokens.next() {
             None => todo!("Wrong syntax"),
@@ -79,7 +94,7 @@ impl Parsing {
         let name = self.get_enum_name();
 
         quote! {
-            #[derive(Debug)]
+            #[derive(Debug, Copy, Clone, Eq, PartialEq)]
             enum #name {
                 #(#values),*
             }
@@ -94,7 +109,17 @@ impl Parsing {
         let enum_type = self.get_enum_name();
 
         quote! {
-            [#((regex_tokenizer::regex::Regex::new(String::from("^") + #regexes).unwrap(), #enum_type::#types),)*]
+            [#(((String::from("^") + #regexes), #enum_type::#types),)*]
+        }
+    }
+
+    fn get_defaults_initializer(&self) -> proc_macro2::TokenStream {
+        let ignored = self.data.iter().filter(|data| data.type_.is_none());
+
+        let regexes: Vec<TokenTree> = ignored.clone().map(|data| data.regex.clone()).collect();
+
+        quote! {
+            [#((String::from("^") + #regexes),)*]
         }
     }
 
@@ -102,23 +127,22 @@ impl Parsing {
         let enum_ = self.get_enum();
         let name = &self.name;
         let enum_name = self.get_enum_name();
-        let regexes_number = self.data.len();
         let matchers = self.get_matchers_initializer();
+        let ignored = self.get_defaults_initializer();
 
         quote! {
+            use regex_tokenizer::BuildableMatcher;
+            use regex_tokenizer::Tokenizer;
+
             #enum_
 
-            type #name = regex_tokenizer::Matcher<#enum_name, #regexes_number>;
+            type #name = regex_tokenizer::Matcher<#enum_name>;
 
-            impl<#enum_name, #regexes_number> #name {
+            impl BuildableMatcher<#enum_name> for #name {
                 fn new() -> #name {
-                    #name {
-                        matchers: #matchers
-                    }
+                    #name::build(vec! #matchers, vec! #ignored)
                 }
             }
-
-            impl regex_tokenizer::ValidTokenizer for #name {}
         }
     }
 }

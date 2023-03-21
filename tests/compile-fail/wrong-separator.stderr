@@ -1,0 +1,5 @@
+error: Arrow => required
+ --> tests/compile-fail/wrong-separator.rs:9:9
+  |
+9 |         "c"
+  |         ^^^

@@ -4,8 +4,8 @@ fn main() {
     tokenizer! {
         Test
 
-        "a[1" => A
-        "b" => B
-        "c" => C
+        r"\w[^\s]*" => Identifier
+        r"\d+" => Number
+        r"\s+" => _
     }
 }

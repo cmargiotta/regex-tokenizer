@@ -4,8 +4,8 @@ fn main() {
     tokenizer! {
         Test
 
-        "a[1" => A
+        "a" => A
         "b" => B
-        "c" => C
+        "c"
     }
 }
