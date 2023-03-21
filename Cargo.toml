@@ -13,7 +13,7 @@ categories = ["parsing"]
 
 [dependencies]
 regex = "1"
-regex-tokenizer-impl = {path = "impl"}
+regex-tokenizer-impl = {path = "impl", version = "0.1.0"}
 proc-macro2 = "1.0.52"
 
 [dev-dependencies]
