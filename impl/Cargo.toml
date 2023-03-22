@@ -3,6 +3,10 @@ name = "regex-tokenizer-impl"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+authors = ["Carmine Margiotta <cmargiotta@posteo.net>"]
+description = "A regex tokenizer-macro implementation"
+homepage = "https://github.com/cmargiotta/regex-tokenizer"
+repository = "https://github.com/cmargiotta/regex-tokenizer"
 
 [dependencies]
 regex = "1"
