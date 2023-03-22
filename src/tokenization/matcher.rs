@@ -38,7 +38,7 @@ pub struct Matcher<TypeEnum> {
 }
 
 impl<TypeEnum: Copy> Matcher<TypeEnum> {
-    /// Build a new Matcher<TypeEnum>, this function should be invoked only by the `tokenizer!` macro
+    /// Build a new Matcher for TypeEnum, this function should be invoked only by the `tokenizer!` macro
     pub fn build(regexes: Vec<(String, TypeEnum)>, ignored: Vec<String>) -> Self {
         Self {
             matchers: regexes

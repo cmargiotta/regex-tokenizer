@@ -1,8 +1,9 @@
 # regex-tokenizer
 
 ![Alla pugna!](https://img.shields.io/badge/ALLA-PUGNA-F70808?style=for-the-badge)
+[![Crates.io (latest)](https://img.shields.io/crates/dv/regex-tokenizer?label=CRATES.IO&style=for-the-badge)](https://crates.io/crates/regex-tokenizer)
 
-A regex-based tokenizer with a minimal DSL for defining it!
+A regex-based tokenizer with a minimal DSL to define it!
 
 ## Usage
 
