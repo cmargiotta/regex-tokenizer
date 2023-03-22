@@ -28,6 +28,7 @@
 //! assert_eq!(token.type_, Test_types::Number);
 //! ```
 
+mod regex;
 mod tokenization;
 
 pub use regex_tokenizer_impl::*;
