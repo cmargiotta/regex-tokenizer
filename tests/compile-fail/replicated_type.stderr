@@ -1,0 +1,5 @@
+error: Token types must be unique
+ --> tests/compile-fail/replicated_type.rs:8:16
+  |
+8 |         "b" => A
+  |                ^

@@ -72,6 +72,19 @@ pub fn parse(code: TokenStream) -> Result<Parsing, TokenStream> {
             Some(token) => todo!("Unexpected token {:?}", token),
         };
 
+        if type_.is_some()
+            && res
+                .iter()
+                .filter(|d| d.type_.is_some())
+                .filter(|d| {
+                    d.type_.clone().unwrap().to_string() == type_.clone().unwrap().to_string()
+                })
+                .count()
+                > 0
+        {
+            return Err(error(type_.unwrap().span(), "Token types must be unique"));
+        }
+
         res.push(Data { regex, type_ });
     }
 
