@@ -7,14 +7,14 @@ use quantifier::Quantifier;
 use std::{collections::VecDeque, ops::Range};
 use token_generator::{Token, TokenGenerator};
 
-#[derive(Debug, PartialEq)]
-pub enum NodeKind<Type: Clone> {
+#[derive(Debug, PartialEq, Clone)]
+pub enum NodeKind<Type: Clone + PartialEq> {
     FINAL(Type),
     SKIP,
 }
 
 #[derive(Debug, PartialEq)]
-pub struct Node<TypeEnum: Clone> {
+pub struct Node<TypeEnum: Clone + PartialEq> {
     current: Quantifier,
     kind: NodeKind<TypeEnum>,
     children: Vec<Node<TypeEnum>>,
@@ -26,7 +26,7 @@ pub struct Error<'a> {
     cause: &'static str,
 }
 
-impl<TypeEnum: Clone> Node<TypeEnum> {
+impl<TypeEnum: Clone + PartialEq> Node<TypeEnum> {
     fn new_skip(current: Quantifier) -> Self {
         Self {
             current,
@@ -176,9 +176,44 @@ impl<TypeEnum: Clone> Node<TypeEnum> {
         Ok(result)
     }
 
+    fn add_child(&mut self, mut child: Self) -> &mut Self {
+        let kind = child.kind.clone();
+        let node_index = self
+            .children
+            .iter()
+            .position(|c| {
+                if c.current == child.current {
+                    if let NodeKind::FINAL(_) = c.kind {
+                        child.kind == NodeKind::SKIP
+                    } else {
+                        true
+                    }
+                } else {
+                    false
+                }
+            })
+            .unwrap_or_else(|| {
+                self.children.push(child);
+                self.children.len() - 1
+            });
+
+        let node = &mut self.children[node_index];
+
+        if node.kind == NodeKind::SKIP {
+            node.kind = kind;
+        }
+
+        node
+    }
+
     pub fn add_matcher<'a>(&mut self, string: &'a str, id: TypeEnum) -> Result<(), Error<'a>> {
-        self.children
-            .append(&mut Self::new_automata(string, id)?.children);
+        let mut new_children = Self::new_automata(string, id)?.children.into_iter();
+
+        let mut current = self;
+
+        while let Some(child) = new_children.next() {
+            current = current.add_child(child);
+        }
 
         Ok(())
     }
@@ -263,5 +298,49 @@ mod tests {
         let automata = super::Node::<A>::new_automata(r"a\d[a-z]", A::T).unwrap();
 
         assert_eq!(automata.try_match("a1zaaaa"), Some(("a1z", A::T)));
+    }
+
+    #[test]
+    fn automata_expansion() {
+        #[derive(Debug, PartialEq, Clone)]
+        enum A {
+            T,
+            U,
+        }
+
+        let mut automata = super::Node::<A>::new_automata(r"a[Xa-z]", A::T).unwrap();
+        automata.add_matcher("a", A::U).expect("");
+
+        assert_eq!(
+            automata,
+            super::Node::<A> {
+                current: Quantifier {
+                    elements: vec![],
+                    min_repetitions: 0,
+                    max_repetitions: Some(0)
+                },
+                kind: NodeKind::SKIP,
+                children: vec![Node {
+                    current: Quantifier {
+                        elements: vec![Element::EXACT('a')],
+                        min_repetitions: 1,
+                        max_repetitions: Some(1)
+                    },
+                    kind: NodeKind::FINAL(A::U),
+                    children: vec![Node {
+                        current: Quantifier {
+                            elements: vec![Element::MIXED(vec![
+                                Element::EXACT('X'),
+                                Element::RANGE('a', 'z')
+                            ])],
+                            min_repetitions: 1,
+                            max_repetitions: Some(1)
+                        },
+                        kind: NodeKind::FINAL(A::T),
+                        children: vec![]
+                    }]
+                },]
+            }
+        )
     }
 }
